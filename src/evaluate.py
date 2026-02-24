@@ -1,26 +1,20 @@
 import torch
-from torch.utils.data import DataLoader
 
 
-def evaluate(model, test_dataset, device):
-
-    test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
-
+def evaluate(model, test_loader, device):
     model.eval()
     correct = 0
     total = 0
 
     with torch.no_grad():
         for images, labels in test_loader:
-            images, labels = images.to(device), labels.to(device)
+            images = images.to(device)
+            labels = labels.to(device)
 
             outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
+            preds = outputs.argmax(dim=1)
 
             total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+            correct += (preds == labels).sum().item()
 
-    accuracy = correct / total
-    print(f"Accuracy: {accuracy:.4f}")
-
-    return accuracy
+    return correct / total

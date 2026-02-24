@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 /data
+
+# Model artifacts (generated locally)
+artifacts/
+*.pth
+*.pt
+*.onnx

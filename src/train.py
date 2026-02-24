@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
-from torch import nn, optim
-
+import torch.nn as nn
+import torch.optim as optim
 
 def train(model, train_dataset, device, lr=0.001, batch_size=64, epochs=5):
 
