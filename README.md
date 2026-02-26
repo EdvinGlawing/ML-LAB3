@@ -1,6 +1,6 @@
 # CIFAR-10 Deep Learning Pipeline & Deployment
 
-This project implements a complete Deep Learning workflow using PyTorch, DVC, and FastAPI.
+This project implements a complete Deep Learning workflow using PyTorch, DVC, FastAPI, and Docker.
 
 It includes:
 
@@ -9,6 +9,7 @@ It includes:
 - Experiment tracking
 - Model export using TorchScript
 - FastAPI inference service
+- Containerized deployment
 
 ---
 
@@ -20,12 +21,64 @@ main.py                # Training entry point
 export_model.py        # TorchScript export script
 smoke_test_export.py   # Export verification script
 app.py                 # FastAPI inference service
-artifacts/             # Model binaries (gitignored)
+artifacts/             # Model binaries (gitignored except scripted model)
 experiments/           # Experiment results
 data.dvc               # DVC dataset tracking
+Dockerfile             # Container definition
 ```
 
 ---
+
+# How To Verify The System
+
+## Option 1 – Run With Docker
+
+Build:
+
+```bash
+docker build -t cifar-api .
+```
+
+Run:
+
+```bash
+docker run -p 8000:8000 cifar-api
+```
+
+Open:
+
+http://127.0.0.1:8000/docs
+
+Test:
+
+POST /predict
+
+Expected response:
+
+```json
+{
+  "prediction": <number>
+}
+```
+
+---
+
+## Option 2 – Run Locally
+
+```bash
+uv sync
+uv run dvc pull
+uv run python main.py --save-weights
+uv run python export_model.py
+uv run uvicorn app:app
+```
+
+Then open:
+
+http://127.0.0.1:8000/docs
+
+---
+
 
 # Training
 
@@ -62,7 +115,7 @@ This generates:
 artifacts/model_scripted.pt
 ```
 
-The exported model is CPU-portable and ready for inference.
+The exported model is CPU-portable and ready for deployment.
 
 Export is done using `torch.jit.trace`.
 
@@ -124,7 +177,7 @@ Returns:
 
 Runs inference using the exported TorchScript model.
 
-### Request Body (JSON)
+#### Request Body (JSON)
 
 ```json
 {
@@ -132,12 +185,10 @@ Runs inference using the exported TorchScript model.
 }
 ```
 
-- Input must contain exactly 3072 floats
+- Input must contain exactly 3072 floats  
 - Represents a flattened CIFAR-10 image (3x32x32)
 
----
-
-### Response
+#### Response
 
 ```json
 {
@@ -145,7 +196,42 @@ Runs inference using the exported TorchScript model.
 }
 ```
 
-- Returns the predicted class index (0–9)
+Returns the predicted class index (0–9).
+
+---
+
+# Docker Deployment
+
+The FastAPI inference service can be run inside a container.
+
+## Build
+
+Before building, ensure the exported model exists:
+
+```bash
+uv run python main.py --save-weights
+uv run python export_model.py
+```
+
+Then build:
+
+```bash
+docker build -t cifar-api .
+```
+
+---
+
+## Run
+
+```bash
+docker run -p 8000:8000 cifar-api
+```
+
+Open:
+
+```
+http://127.0.0.1:8000/docs
+```
 
 ---
 
@@ -175,6 +261,43 @@ This allows tracking different hyperparameter configurations and corresponding a
 
 ---
 
+# Pull Requests
+
+Development was performed using feature branches and reviewed via Pull Requests.
+
+- PR1 – Model Export  
+- PR2 – FastAPI Inference API  
+- PR3 – Docker Containerization  
+
+Each PR introduced a separate production step:
+
+1. Export model to TorchScript  
+2. Serve model via FastAPI  
+3. Deploy API inside Docker container  
+
+---
+
+# Code Reviews
+
+1. Code Review on Feature/model export: https://github.com/EdvinGlawing/ML-LAB3/pull/2#pullrequestreview-3861559215
+2. Code review on FastAPI inference: https://github.com/EdvinGlawing/ML-LAB3/pull/3
+
+---
+
+# Final System Overview
+
+The project now supports:
+
+✔ Modular PyTorch training pipeline  
+✔ Dataset versioning with DVC  
+✔ TorchScript export for deployment  
+✔ FastAPI inference API  
+✔ Containerized deployment via Docker  
+
+The system can be trained, exported, served, and deployed using a reproducible workflow.
+
+---
+
 # Requirements
 
 - Python 3.12
@@ -183,3 +306,4 @@ This allows tracking different hyperparameter configurations and corresponding a
 - FastAPI
 - Uvicorn
 - DVC
+- Docker
