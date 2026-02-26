@@ -9,20 +9,30 @@ from src.train import train
 from src.evaluate import evaluate
 
 
+def get_safe_device():
+    if torch.cuda.is_available():
+        try:
+            major, _ = torch.cuda.get_device_capability()
+            if major <= 9:
+                return torch.device("cuda")
+            else:
+                return torch.device("cpu")
+        except:
+            return torch.device("cpu")
+    return torch.device("cpu")
+
+
 def main(lr, batch_size, epochs, save_weights):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_safe_device()
     print("Using device:", device)
 
     train_dataset = CIFAR10Dataset(train=True)
     test_dataset = CIFAR10Dataset(train=False)
 
-    # Your train() builds its own train_loader internally,
-    # so we only need the test_loader here.
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
     model = SimpleCNN()
 
-    # Train using your existing train() function
     model = train(
         model=model,
         train_dataset=train_dataset,
@@ -32,11 +42,9 @@ def main(lr, batch_size, epochs, save_weights):
         epochs=epochs,
     )
 
-    # Evaluate after training
     acc = evaluate(model, test_loader, device)
     print("Final Test Accuracy:", acc)
 
-    # Save weights if requested
     if save_weights:
         Path("artifacts").mkdir(exist_ok=True)
         weights_path = Path("artifacts/model.pth")

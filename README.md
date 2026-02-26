@@ -33,6 +33,13 @@ Dockerfile             # Container definition
 
 ## Option 1 – Run With Docker
 
+First export the model:
+
+```bash
+uv run python main.py --save-weights
+uv run python export_model.py
+```
+
 Build:
 
 ```bash
