@@ -60,6 +60,45 @@ Test:
 
 POST /predict
 
+Test Input Format
+
+The model expects **3072 float values** (flattened 3×32×32 image).
+
+Example structure:
+
+```json
+{
+  "image": [0.0, 0.0, 0.0, ...]
+}
+```
+
+---
+
+Generate a Valid Test Input
+
+Instead of manually writing 3072 values, generate one automatically.
+
+Run:
+
+```bash
+uv run python
+```
+
+Then:
+
+```python
+import json
+print(json.dumps({"image": [0.0]*3072}))
+```
+
+Copy the output and paste it into the Swagger request body.
+
+Click:
+
+Execute
+
+---
+
 Expected response:
 
 ```json
@@ -67,22 +106,6 @@ Expected response:
   "prediction": <number>
 }
 ```
-
----
-
-## Option 2 – Run Locally
-
-```bash
-uv sync
-uv run dvc pull
-uv run python main.py --save-weights
-uv run python export_model.py
-uv run uvicorn app:app
-```
-
-Then open:
-
-http://127.0.0.1:8000/docs
 
 ---
 
