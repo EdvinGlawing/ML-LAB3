@@ -2,6 +2,8 @@
 
 This project implements a complete Deep Learning workflow using PyTorch, DVC, FastAPI, and Docker.
 
+Lab Partners: Andreas Eriksson, Edvin Glawing
+
 It includes:
 
 - Modular PyTorch training pipeline
