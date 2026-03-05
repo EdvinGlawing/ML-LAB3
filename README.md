@@ -1,8 +1,8 @@
 # CIFAR-10 Deep Learning Pipeline & Deployment
 
-This project implements a complete Deep Learning workflow using PyTorch, DVC, FastAPI, and Docker.
-
 Lab Partners: Andreas Eriksson, Edvin Glawing
+
+This project implements a complete Deep Learning workflow using PyTorch, DVC, FastAPI, and Docker.
 
 It includes:
 
